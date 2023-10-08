@@ -21,26 +21,43 @@
     <div id="viz"></div>
     <script>
         var vlSpec = {
+            {
             "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "url": "https://vega.github.io/editor/data/movies.json" },
+                "data": {
+                "url": "https://uiuc-ischool-dataviz.github.io/fall2023-acg-acu/data/building_inventory.csv"
+            },
             "hconcat": [
                 {
-                    "params": [{ "name": "myfirstparam", "select": "interval" }],
-                    "mark": "bar",
-                    "encoding": {
-                        "x": { "field": "IMDB Rating", "type": "quantitative", "bin": true },
-                        "y": { "aggregate": "mean", "field": "US Gross" }
-                    }
+                    "layer": [
+                        {
+                            "mark": { "type": "bar" },
+                            "encoding": {
+                                "x": { "field": "Agency Name", "type": "nominal" },
+                                "y": { "aggregate": "count" },
+                                "color": { "value": "grey" }
+                            }
+                        },
+                        {
+                            "transform": [{ "filter": { "param": "myfirstparam" } }],
+                            "mark": { "type": "bar" },
+                            "encoding": {
+                                "x": { "field": "Agency Name", "type": "nominal" },
+                                "y": { "aggregate": "count" }
+                            }
+                        }
+                    ]
                 },
                 {
-                    "mark": "point",
+                    "mark": { "type": "point", "shape": "diamond" },
+                    "params": [{ "name": "myfirstparam", "select": "interval" }],
                     "encoding": {
-                        "x": { "field": "US Gross", "type": "quantitative" },
-                        "y": { "field": "Worldwide Gross", "type": "quantitative" },
+                        "x": { "field": "Year Acquired", "type": "temporal" },
+                        "y": { "field": "Year Constructed", "type": "temporal" },
                         "color": { "value": "grey", "condition": { "param": "myfirstparam" } }
                     }
                 }
             ]
+        }
         };
         vegaEmbed("#viz", vlSpec);
     </script>
