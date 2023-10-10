@@ -1,0 +1,45 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "url": "https://uiuc-ischool-dataviz.github.io/fall2023-acg-acu/data/building_inventory.csv"
+  },
+  "hconcat": [
+    {
+      "layer": [
+        {
+          "params": [{"name": "myfirstparam", "select": {"type": "interval"}}],
+          "mark": {"type": "bar"},
+          "encoding": {
+            "x": {"field": "Agency Name", "type": "nominal"},
+            "y": {
+              "field": "Square Footage",
+              "aggregate": "sum",
+              "title": "Sum of Square Footage"
+            }
+          }
+        },
+        {
+          "transform": [{"filter": {"param": "myfirstparam"}}],
+          "mark": {"type": "bar"},
+          "encoding": {
+            "x": {"field": "Agency Name", "type": "nominal"},
+            "y": {
+              "field": "Square Footage",
+              "aggregate": "sum",
+              "title": "Sum of Square Footage"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mark": {"type": "point", "shape": "diamond"},
+      "encoding": {
+        "x": {"field": "Year Acquired", "type": "temporal"},
+        "y": {"field": "Square Footage", "type": "quantitative"},
+        "color": {"value": "grey", "condition": {"param": "myfirstparam"}}
+      }
+    }
+  ],
+  "config": {}
+}

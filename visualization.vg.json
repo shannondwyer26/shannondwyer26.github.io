@@ -1,0 +1,561 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "height": 200,
+  "data": [
+    {"name": "myfirstparam_store"},
+    {
+      "name": "source_0",
+      "url": "https://uiuc-ischool-dataviz.github.io/fall2023-acg-acu/data/building_inventory.csv",
+      "format": {
+        "type": "csv",
+        "parse": {"Year Acquired": "date"},
+        "delimiter": ","
+      }
+    },
+    {
+      "name": "data_0",
+      "source": "source_0",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["Agency Name"],
+          "ops": ["sum"],
+          "fields": ["Square Footage"],
+          "as": ["sum_Square Footage"]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum[\"sum_Square Footage\"]) && isFinite(+datum[\"sum_Square Footage\"])"
+        }
+      ]
+    },
+    {
+      "name": "data_1",
+      "source": "source_0",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "!length(data(\"myfirstparam_store\")) || vlSelectionTest(\"myfirstparam_store\", datum)"
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["Agency Name"],
+          "ops": ["sum"],
+          "fields": ["Square Footage"],
+          "as": ["sum_Square Footage"]
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum[\"sum_Square Footage\"]) && isFinite(+datum[\"sum_Square Footage\"])"
+        }
+      ]
+    },
+    {
+      "name": "data_2",
+      "source": "source_0",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "(isDate(datum[\"Year Acquired\"]) || (isValid(datum[\"Year Acquired\"]) && isFinite(+datum[\"Year Acquired\"]))) && isValid(datum[\"Square Footage\"]) && isFinite(+datum[\"Square Footage\"])"
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {"name": "concat_0_x_step", "value": 20},
+    {
+      "name": "concat_0_width",
+      "update": "bandspace(domain('concat_0_x').length, 0.1, 0.05) * concat_0_x_step"
+    },
+    {"name": "concat_1_width", "value": 200},
+    {
+      "name": "unit",
+      "value": {},
+      "on": [
+        {"events": "mousemove", "update": "isTuple(group()) ? group() : unit"}
+      ]
+    },
+    {
+      "name": "myfirstparam",
+      "update": "vlSelectionResolve(\"myfirstparam_store\", \"union\")"
+    }
+  ],
+  "layout": {"padding": 20, "bounds": "full", "align": "each"},
+  "marks": [
+    {
+      "type": "group",
+      "name": "concat_0_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "concat_0_width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "signals": [
+        {
+          "name": "myfirstparam_x",
+          "value": [],
+          "on": [
+            {
+              "events": {
+                "source": "scope",
+                "type": "mousedown",
+                "filter": [
+                  "!event.item || event.item.mark.name !== \"myfirstparam_brush\""
+                ]
+              },
+              "update": "[x(unit), x(unit)]"
+            },
+            {
+              "events": {
+                "source": "window",
+                "type": "mousemove",
+                "consume": true,
+                "between": [
+                  {
+                    "source": "scope",
+                    "type": "mousedown",
+                    "filter": [
+                      "!event.item || event.item.mark.name !== \"myfirstparam_brush\""
+                    ]
+                  },
+                  {"source": "window", "type": "mouseup"}
+                ]
+              },
+              "update": "[myfirstparam_x[0], clamp(x(unit), 0, concat_0_width)]"
+            },
+            {
+              "events": {"signal": "myfirstparam_scale_trigger"},
+              "update": "[0, 0]"
+            },
+            {
+              "events": [{"source": "view", "type": "dblclick"}],
+              "update": "[0, 0]"
+            },
+            {
+              "events": {"signal": "myfirstparam_translate_delta"},
+              "update": "clampRange(panLinear(myfirstparam_translate_anchor.extent_x, myfirstparam_translate_delta.x / span(myfirstparam_translate_anchor.extent_x)), 0, concat_0_width)"
+            },
+            {
+              "events": {"signal": "myfirstparam_zoom_delta"},
+              "update": "clampRange(zoomLinear(myfirstparam_x, myfirstparam_zoom_anchor.x, myfirstparam_zoom_delta), 0, concat_0_width)"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_Agency_Name",
+          "on": [
+            {
+              "events": {"signal": "myfirstparam_x"},
+              "update": "myfirstparam_x[0] === myfirstparam_x[1] ? null : invert(\"concat_0_x\", myfirstparam_x)"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_scale_trigger",
+          "value": {},
+          "on": [
+            {
+              "events": [{"scale": "concat_0_x"}],
+              "update": "(!isArray(myfirstparam_Agency_Name) || (invert(\"concat_0_x\", myfirstparam_x)[0] === myfirstparam_Agency_Name[0] && invert(\"concat_0_x\", myfirstparam_x)[1] === myfirstparam_Agency_Name[1])) ? myfirstparam_scale_trigger : {}"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_tuple",
+          "on": [
+            {
+              "events": [{"signal": "myfirstparam_Agency_Name"}],
+              "update": "myfirstparam_Agency_Name ? {unit: \"concat_0_layer_0\", fields: myfirstparam_tuple_fields, values: [myfirstparam_Agency_Name]} : null"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_tuple_fields",
+          "value": [{"field": "Agency Name", "channel": "x", "type": "E"}]
+        },
+        {
+          "name": "myfirstparam_translate_anchor",
+          "value": {},
+          "on": [
+            {
+              "events": [
+                {
+                  "source": "scope",
+                  "type": "mousedown",
+                  "markname": "myfirstparam_brush"
+                }
+              ],
+              "update": "{x: x(unit), y: y(unit), extent_x: slice(myfirstparam_x)}"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_translate_delta",
+          "value": {},
+          "on": [
+            {
+              "events": [
+                {
+                  "source": "window",
+                  "type": "mousemove",
+                  "consume": true,
+                  "between": [
+                    {
+                      "source": "scope",
+                      "type": "mousedown",
+                      "markname": "myfirstparam_brush"
+                    },
+                    {"source": "window", "type": "mouseup"}
+                  ]
+                }
+              ],
+              "update": "{x: myfirstparam_translate_anchor.x - x(unit), y: myfirstparam_translate_anchor.y - y(unit)}"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_zoom_anchor",
+          "on": [
+            {
+              "events": [
+                {
+                  "source": "scope",
+                  "type": "wheel",
+                  "consume": true,
+                  "markname": "myfirstparam_brush"
+                }
+              ],
+              "update": "{x: x(unit), y: y(unit)}"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_zoom_delta",
+          "on": [
+            {
+              "events": [
+                {
+                  "source": "scope",
+                  "type": "wheel",
+                  "consume": true,
+                  "markname": "myfirstparam_brush"
+                }
+              ],
+              "force": true,
+              "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
+            }
+          ]
+        },
+        {
+          "name": "myfirstparam_modify",
+          "on": [
+            {
+              "events": {"signal": "myfirstparam_tuple"},
+              "update": "modify(\"myfirstparam_store\", myfirstparam_tuple, true)"
+            }
+          ]
+        }
+      ],
+      "marks": [
+        {
+          "name": "myfirstparam_brush_bg",
+          "type": "rect",
+          "clip": true,
+          "encode": {
+            "enter": {
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.125}
+            },
+            "update": {
+              "x": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "signal": "myfirstparam_x[0]"
+                },
+                {"value": 0}
+              ],
+              "y": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "value": 0
+                },
+                {"value": 0}
+              ],
+              "x2": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "signal": "myfirstparam_x[1]"
+                },
+                {"value": 0}
+              ],
+              "y2": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "field": {"group": "height"}
+                },
+                {"value": 0}
+              ]
+            }
+          }
+        },
+        {
+          "name": "concat_0_layer_0_marks",
+          "type": "rect",
+          "style": ["bar"],
+          "interactive": true,
+          "from": {"data": "data_0"},
+          "encode": {
+            "update": {
+              "fill": {"value": "#4c78a8"},
+              "ariaRoleDescription": {"value": "bar"},
+              "description": {
+                "signal": "\"Agency Name: \" + (isValid(datum[\"Agency Name\"]) ? datum[\"Agency Name\"] : \"\"+datum[\"Agency Name\"]) + \"; Sum of Square Footage: \" + (format(datum[\"sum_Square Footage\"], \"\"))"
+              },
+              "x": {"scale": "concat_0_x", "field": "Agency Name"},
+              "width": {"signal": "max(0.25, bandwidth('concat_0_x'))"},
+              "y": {"scale": "concat_0_y", "field": "sum_Square Footage"},
+              "y2": {"scale": "concat_0_y", "value": 0}
+            }
+          }
+        },
+        {
+          "name": "concat_0_layer_1_marks",
+          "type": "rect",
+          "style": ["bar"],
+          "interactive": false,
+          "from": {"data": "data_1"},
+          "encode": {
+            "update": {
+              "fill": {"value": "#4c78a8"},
+              "ariaRoleDescription": {"value": "bar"},
+              "description": {
+                "signal": "\"Agency Name: \" + (isValid(datum[\"Agency Name\"]) ? datum[\"Agency Name\"] : \"\"+datum[\"Agency Name\"]) + \"; Sum of Square Footage: \" + (format(datum[\"sum_Square Footage\"], \"\"))"
+              },
+              "x": {"scale": "concat_0_x", "field": "Agency Name"},
+              "width": {"signal": "max(0.25, bandwidth('concat_0_x'))"},
+              "y": {"scale": "concat_0_y", "field": "sum_Square Footage"},
+              "y2": {"scale": "concat_0_y", "value": 0}
+            }
+          }
+        },
+        {
+          "name": "myfirstparam_brush",
+          "type": "rect",
+          "clip": true,
+          "encode": {
+            "enter": {"fill": {"value": "transparent"}},
+            "update": {
+              "x": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "signal": "myfirstparam_x[0]"
+                },
+                {"value": 0}
+              ],
+              "y": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "value": 0
+                },
+                {"value": 0}
+              ],
+              "x2": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "signal": "myfirstparam_x[1]"
+                },
+                {"value": 0}
+              ],
+              "y2": [
+                {
+                  "test": "data(\"myfirstparam_store\").length && data(\"myfirstparam_store\")[0].unit === \"concat_0_layer_0\"",
+                  "field": {"group": "height"}
+                },
+                {"value": 0}
+              ],
+              "stroke": [
+                {
+                  "test": "myfirstparam_x[0] !== myfirstparam_x[1]",
+                  "value": "white"
+                },
+                {"value": null}
+              ]
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "concat_0_y",
+          "orient": "left",
+          "gridScale": "concat_0_x",
+          "grid": true,
+          "tickCount": {"signal": "ceil(height/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "concat_0_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "Agency Name",
+          "labelAlign": "right",
+          "labelAngle": 270,
+          "labelBaseline": "middle",
+          "zindex": 0
+        },
+        {
+          "scale": "concat_0_y",
+          "orient": "left",
+          "grid": false,
+          "title": "Sum of Square Footage",
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(height/40)"},
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "concat_1_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "concat_1_width"},
+          "height": {"signal": "height"}
+        }
+      },
+      "marks": [
+        {
+          "name": "concat_1_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "interactive": false,
+          "from": {"data": "data_2"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "shape": {"value": "diamond"},
+              "fill": {"value": "transparent"},
+              "stroke": [
+                {
+                  "test": "!length(data(\"myfirstparam_store\")) || vlSelectionTest(\"myfirstparam_store\", datum)",
+                  "value": "#4c78a8"
+                },
+                {"value": "grey"}
+              ],
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"Year Acquired: \" + (timeFormat(datum[\"Year Acquired\"], '%b %d, %Y')) + \"; Square Footage: \" + (format(datum[\"Square Footage\"], \"\"))"
+              },
+              "x": {"scale": "concat_1_x", "field": "Year Acquired"},
+              "y": {"scale": "concat_1_y", "field": "Square Footage"}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "concat_1_x",
+          "orient": "bottom",
+          "gridScale": "concat_1_y",
+          "grid": true,
+          "tickCount": {"signal": "ceil(concat_1_width/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "concat_1_y",
+          "orient": "left",
+          "gridScale": "concat_1_x",
+          "grid": true,
+          "tickCount": {"signal": "ceil(height/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "concat_1_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "Year Acquired",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(concat_1_width/40)"},
+          "zindex": 0
+        },
+        {
+          "scale": "concat_1_y",
+          "orient": "left",
+          "grid": false,
+          "title": "Square Footage",
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(height/40)"},
+          "zindex": 0
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "concat_0_x",
+      "type": "band",
+      "domain": {
+        "fields": [
+          {"data": "data_0", "field": "Agency Name"},
+          {"data": "data_1", "field": "Agency Name"}
+        ],
+        "sort": true
+      },
+      "range": {"step": {"signal": "concat_0_x_step"}},
+      "paddingInner": 0.1,
+      "paddingOuter": 0.05
+    },
+    {
+      "name": "concat_0_y",
+      "type": "linear",
+      "domain": {
+        "fields": [
+          {"data": "data_0", "field": "sum_Square Footage"},
+          {"data": "data_1", "field": "sum_Square Footage"}
+        ]
+      },
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "concat_1_x",
+      "type": "time",
+      "domain": {"data": "data_2", "field": "Year Acquired"},
+      "range": [0, {"signal": "concat_1_width"}]
+    },
+    {
+      "name": "concat_1_y",
+      "type": "linear",
+      "domain": {"data": "data_2", "field": "Square Footage"},
+      "range": [{"signal": "height"}, 0],
+      "nice": true,
+      "zero": true
+    }
+  ],
+  "config": {}
+}

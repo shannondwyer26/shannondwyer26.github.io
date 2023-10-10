@@ -20,28 +20,7 @@
     </p>
     <div id="viz"></div>
     <script>
-        var vlSpec = {
-            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "data": { "url": "https://vega.github.io/editor/data/movies.json" },
-            "hconcat": [
-                {
-                    "params": [{ "name": "myfirstparam", "select": "interval" }],
-                    "mark": "bar",
-                    "encoding": {
-                        "x": { "field": "IMDB Rating", "type": "quantitative", "bin": true },
-                        "y": { "aggregate": "mean", "field": "US Gross" }
-                    }
-                },
-                {
-                    "mark": "point",
-                    "encoding": {
-                        "x": { "field": "US Gross", "type": "quantitative" },
-                        "y": { "field": "Worldwide Gross", "type": "quantitative" },
-                        "color": { "value": "grey", "condition": { "param": "myfirstparam" } }
-                    }
-                }
-            ]
-        };
+        var vlSpec = "building-inventory.json";
         vegaEmbed("#viz", vlSpec);
     </script>
 </body>
