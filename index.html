@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>This is our example webpage</title>
+    <title>Assignment 3</title>
     <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0/build/vega.min.js"
         integrity="sha256-na2uPt+tUPV7GRVpc+/ezQj+lGwljIvOJifkmg8f3as=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.15.0/build/vega-lite.min.js"
@@ -14,9 +14,9 @@
 </head>
 
 <body>
+    <h1> Illinois Building Inventory Visualizations</h1>
     <p>
-        This is an example paragraph. You can do things like <strong>strongly</strong> emphasize text.
-        You can also <em>emphasize</em> text.
+        Below are two visualizations created using the building inventory data.
     </p>
     <div id="viz"></div>
     <script>
@@ -43,6 +43,7 @@
         {
           "transform": [{"filter": {"param": "myfirstparam"}}],
           "mark": {"type": "bar"},
+          "title": "Sum of Square Footage by Agency",
           "encoding": {
             "x": {"field": "Agency Name", "type": "nominal"},
             "y": {
@@ -56,6 +57,7 @@
     },
     {
       "mark": {"type": "point", "shape": "diamond"},
+      "title": "Building Acquisition Year vs. Building Square Footage",
       "encoding": {
         "x": {"field": "Year Acquired", "type": "temporal"},
         "y": {"field": "Square Footage", "type": "quantitative"},
